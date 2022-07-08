@@ -13,13 +13,18 @@ const servers = {
     },
   ],
 };
-
+//let queryString= window.location.search; 
+let urlParmas= new URLSearchParams(window.location.search); 
+let roomId= urlParmas.get("room"); 
+if(!roomId){
+    window.location= "lobby.html"; 
+}
 
 let init = async () => {
   client = await AgoraRTM.createInstance(APP_ID);
   await client.login({ uid, token });
 
-  channel = client.createChannel("main");
+  channel = client.createChannel(roomId);
   await channel.join();
 
   channel.on("MemberJoined", handleUserJoin);
