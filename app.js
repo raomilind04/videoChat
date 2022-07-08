@@ -33,7 +33,7 @@ let init = async () => {
 
   localStream = await navigator.mediaDevices.getUserMedia({
     video: true,
-    audio: false,
+    audio: true,
   });
   document.getElementById("user-1").srcObject = localStream;
 };
@@ -45,7 +45,8 @@ let handleUserJoin = async (MemberId) => {
   createOffer(MemberId);
 };
 let handleUserLeft= async(MemberId)=> {
-    document.getElementById("user-2").style.display= "none"; 
+    document.getElementById("user-2").style.display= "none";
+    document.getElementById("user-1").classList.remove("myFrame");  
 }
 let handleMessageFromPeer = async (message, MemberId) => {
   message = JSON.parse(message.text);
@@ -70,6 +71,7 @@ let createPeerConnection = async (MemberId) => {
   remoteStream = new MediaStream();
   document.getElementById("user-2").srcObject = remoteStream;
   document.getElementById("user-2").style.display = "block";
+  document.getElementById("user-1").classList.add("myFrame"); 
 
   if (!localStream) {
     localStream = await navigator.mediaDevices.getUserMedia({
@@ -142,7 +144,34 @@ let leaveChannel= async ()=> {
     await channel.leave(); 
     await channel.logout(); 
 }
+let toggleCam= async ()=> {
+    let videoTrack= localStream.getTracks().find((track)=> {
+        return track.kind=== "video"; 
+    })
+    if(videoTrack.enabled){
+        videoTrack.enabled= false; 
+        document.getElementById("camera").style.backgroundColor= "red"; 
+    }else{
+        videoTrack.enabled= true; 
+        document.getElementById("camera").style.backgroundColor= "skyblue"; 
+    }
+}
+let toggleMic= async ()=> {
+    let audioTrack= localStream.getTracks().find((track)=> {
+        return track.kind=== "audio"; 
+    })
+    if(audioTrack.enabled){
+        audioTrack.enabled= false; 
+        document.getElementById("mic").style.backgroundColor= "red"; 
+    }else{
+        audioTrack.enabled= true; 
+        document.getElementById("mic").style.backgroundColor= "skyblue"; 
+    }
+}
 
 window.addEventListener("beforeunload", leaveChannel); 
+document.getElementById("camera").addEventListener("click", toggleCam); 
+document.getElementById("mic").addEventListener("click", toggleMic); 
+
 
 init();
